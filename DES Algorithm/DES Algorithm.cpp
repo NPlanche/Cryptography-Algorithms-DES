@@ -16,6 +16,14 @@ string shift_twice_left(string key_part);
 string ptToBinary(string pt);
 string Xor (string right_expansion);
 
+string DES();
+string initial_permutation();
+string expansion(string right);
+string Xor(string key_round, string exp);
+int binaryToDec(string b);
+string decimalToBin(int dec);
+string final_permutation(string combined);
+
 int main()
 {
     //Stepts 
@@ -35,16 +43,18 @@ int main()
    //TODO: change key: randomize it
    //64 bit key
     string key =  "1010101010111011000010010001100000100111001101101100110011011101";
-    //key_generation(key);
+    key_generation(key);
 
     string plaintext = "";
     cout << "Secret Message: ";
     cin >> plaintext;
 
-    string pt = ptToBinary(plaintext);
+    pt = ptToBinary(plaintext);
     cout << "Binary pt:" << pt << endl;
 
     string cyphertext = DES();
+    cout << "Cyphertext:" << cyphertext << endl;
+
 
 }
 
@@ -135,9 +145,13 @@ string ptToBinary(string pt) {
     for (char c : pt) {
         binary += bitset<8>(c).to_string();
     }
-
+    // Pad with zeros to ensure 64 bits
+    while (binary.length() < 64) {
+        binary = "0" + binary;
+    }
     return binary;
 }
+
 
 string DES() {
 
@@ -218,14 +232,13 @@ string DES() {
     string right = ip.substr(32, 32);
 
     //Encryption 16 rounds 
-
     for (int i = 0; i < 16; i++) {
         string right_expansion = expansion(right);
         string xor_exp = Xor(keys[i], right_expansion);
         string r = "";
         //s-boxes
         for (int i = 0; i < 8; i++) {
-            string r = xor_exp.substr(i * 6, 1) + xor_exp.substr(i * 6 + 5, 1);
+            r = xor_exp.substr(i * 6, 1) + xor_exp.substr(i * 6 + 5, 1);
             int row = binaryToDec(r);
 
             string c = xor_exp.substr(i * 6 + 1, 1) + xor_exp.substr(i * 6 + 2, 1) + xor_exp.substr(i * 6 + 3, 1) + xor_exp.substr(i * 6 + 4, 1);;
@@ -240,11 +253,26 @@ string DES() {
         for (int i = 0; i < 32; i++) {
             second_perm += r[permutation_table[i] - 1];
         }
+
+        xor_exp = Xor(second_perm, left);
+
+        left = xor_exp;
+
+        if (i < 15) {
+            string x = right;
+            right = xor_exp;
+            left = x;
+        }
     }
 
-    
-}
+    //combine the two halves of plaintext
+    string combined = right + left;
 
+    //final permutation
+    string ciphertext = final_permutation(combined);
+
+    return ciphertext;
+}
 string initial_permutation() {
 
     int ip[64] = {
@@ -266,7 +294,6 @@ string initial_permutation() {
 
     return temp;
 }
-
 string expansion(string right) {
 
     //expansion table
@@ -300,6 +327,7 @@ string Xor (string key_round,string exp){
         }
     }
 
+
     return r;
     }
 int binaryToDec(string b) {
@@ -325,4 +353,22 @@ string decimalToBin(int dec) {
         binary = "0" + binary;
     }
     return binary;
+}
+string final_permutation(string combined) {
+    string cipher = "";
+    int ip_inverse[64] = {
+        40, 8, 48, 16, 56, 24, 64, 32,
+        39, 7, 47, 15, 55, 23, 63, 31,
+        38, 6, 46, 14, 54, 22, 62, 30,
+        37, 5, 45, 13, 53, 21, 61, 29,
+        36, 4, 44, 12, 52, 20, 60, 28,
+        35, 3, 43, 11, 51, 19, 59, 27,
+        34, 2, 42, 10, 50, 18, 58 ,26,
+        33, 1, 41, 9, 49, 17, 57, 25
+    };
+
+    for (int i = 0; i < 64; i++) {
+        cipher += combined[ip_inverse[i] - 1];
+    }
+    return cipher;
 }
