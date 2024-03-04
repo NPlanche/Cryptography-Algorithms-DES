@@ -443,36 +443,22 @@ string decryption(string ciphertext) {
     return decrypted_pt;
 }
 /// <summary>
-/// The functions below where source from geeksforgeeks.
-/// Given this was appropiate because generating a key was not the focus of this assigment
+/// The functions below was inpired by geeksforgeeks.
+/// Given this was appropiate because generating a random string was not the focus of this assigment
 ///  and the professor said we could utilize extenal souces or functions 
 /// </summary>
 /// <returns></returns>
 int findRandom()
-{
-    // Generate the random number
-    int num = ((int)rand() % 2);
-
-    // Return the generated number
+{    int num = ((int)rand() % 2);
     return num;
 }
 string generateBinaryString(int N)
 {
     srand(time(NULL));
-
-    // Stores the empty string
     string S = "";
-
-    // Iterate over the range [0, N - 1]
     for (int i = 0; i < N; i++) {
-
-        // Store the random number
         int x = findRandom();
-
-        // Append it to the string
         S += to_string(x);
     }
-
-    // Print the resulting string
     return S;
 }
