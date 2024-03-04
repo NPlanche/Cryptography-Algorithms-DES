@@ -8,12 +8,14 @@ using namespace std;
 //Global Vars
 string keys[16];
 string pt;
+
 //identifiers
 void key_generation(string K);
 string pc_1(string key);
 string shift_once_left(string key_part);
 string shift_twice_left(string key_part);
 string ptToBinary(string pt);
+string binaryToPlaintext(string binary);
 
 string DES();
 string initial_permutation();
@@ -22,10 +24,13 @@ string Xor(string key_round, string exp);
 int binaryToDec(string b);
 string decimalToBin(int dec);
 string final_permutation(string combined);
+string decryption(string ciphertext);
+string generateBinaryString(int N);
 
 int main()
 {
-    // Encrytion Stepts 
+    // Stepts
+    // Encryption 
     // 1. convert paintext into binary
     // 2. Plaintext (64 bits) to Initial Permutation
     // 3. Initial Permutation
@@ -38,11 +43,10 @@ int main()
     // 10. Unite L16 and R16 for Final Permutation
     // 11. Final Permutation 
     // 12. Ciphertext
+    // 13. Decryption
 
-   // 1. Key Generation
-   //TODO: change key: randomize it
-   //64 bit key
-    string key =  "1010101010111011000010010001100000100111001101101100110011011101";
+   // 1. Key Generation ( 64 bit key )
+    string key = generateBinaryString(64);
     key_generation(key);
 
     string plaintext = "";
@@ -54,8 +58,15 @@ int main()
 
     string cyphertext = DES();
     cout << "Cyphertext:" << cyphertext << endl;
+
+    string decrypted_pt = decryption(cyphertext);
+    cout << "Decrypted plaintext: " << decrypted_pt << endl;
 }
 
+/// <summary>
+/// key_generation: This fuction is the Key Scheduler and generates keys 1 to 16 
+/// </summary>
+/// <param name="K"></param>
 void key_generation(string K) {
 
     //PC-1 table 56 
@@ -100,6 +111,11 @@ void key_generation(string K) {
     }
     
 }
+/// <summary>
+/// pc_1: Compressess the key using the pc-1 table
+/// </summary>
+/// <param name="key"></param>
+/// <returns>new_key</returns>
 string pc_1(string key) {
     //PC-1 table 56 
     int pc_1[56] = {
@@ -123,6 +139,10 @@ string pc_1(string key) {
 
     return new_key;
 }
+/// <summary>
+/// shift_once_left: Shift the given bits to the left once
+/// </summary>
+/// <param name="key_part"></param>
 string shift_once_left(string key_part) {
     string shifted = "";
     // Shift every bit once to the left 
@@ -133,10 +153,19 @@ string shift_once_left(string key_part) {
     shifted += key_part[0];
     return shifted;
 }
+/// <summary>
+/// shift_twice_left: Shift the given bits to the left twice
+/// </summary>
+/// <param name="key_part"></param>
 string shift_twice_left(string key_part) {
     //shift bits twice
     return shift_once_left(shift_once_left(key_part));
 }
+/// <summary>
+/// ptToBinary: converts from text to binary
+/// </summary>
+/// <param name="pt"></param>
+/// <returns>binary</returns>
 string ptToBinary(string pt) {
     string binary;
     
@@ -152,10 +181,11 @@ string ptToBinary(string pt) {
 
     return binary;
 }
-
-
+/// <summary>
+/// DES: Implements the DES encryption algorithm
+/// </summary>
+/// <returns>ciphertext</returns>
 string DES() {
-
     //Sunstitution Boxes
     int s_boxes[8][4][16] = {
         {
@@ -279,7 +309,10 @@ string DES() {
     // 12. Ciphertext
     return ciphertext;
 }
-// 3. Initial Permutation (64 bits) 
+/// <summary>
+/// initial_permutation: 3Performs the initial permutation
+/// </summary>
+/// <returns></returns>
 string initial_permutation() {
 
     int ip[64] = {
@@ -301,6 +334,11 @@ string initial_permutation() {
 
     return temp;
 }
+/// <summary>
+/// expansion: preform the expansion of the right side of the plain text 
+/// </summary>
+/// <param name="right"></param>
+/// <returns>right_expansion</returns>
 string expansion(string right) {
 
     //expansion table
@@ -323,6 +361,12 @@ string expansion(string right) {
 
     return right_expansion;
 }
+/// <summary>
+/// Xor: preforms an XOR operation
+/// </summary>
+/// <param name="key_round"></param>
+/// <param name="exp"></param>
+/// <returns>r</returns>
 string Xor (string key_round,string exp){
     string r = "";
     for (int i = 0; i < exp.size(); i++) {
@@ -337,6 +381,11 @@ string Xor (string key_round,string exp){
 
     return r;
     }
+/// <summary>
+/// binaryToDec: convert the given binary into decimal
+/// </summary>
+/// <param name="b"></param>
+/// <returns>decimal</returns>
 int binaryToDec(string b) {
     int decimal = 0;
     int count = 0;
@@ -350,6 +399,11 @@ int binaryToDec(string b) {
 
     return decimal;
 };
+/// <summary>
+/// decimalToBin: converts the given decimal into binary
+/// </summary>
+/// <param name="dec"></param>
+/// <returns>binary</returns>
 string decimalToBin(int dec) {
     string binary;
     while (dec != 0) {
@@ -361,6 +415,11 @@ string decimalToBin(int dec) {
     }
     return binary;
 }
+/// <summary>
+/// final_permutation: 
+/// </summary>
+/// <param name="combined"></param>
+/// <returns></returns>
 string final_permutation(string combined) {
     string cipher = "";
     int ip_inverse[64] = {
@@ -378,4 +437,59 @@ string final_permutation(string combined) {
         cipher += combined[ip_inverse[i] - 1];
     }
     return cipher;
+}
+/// <summary>
+/// decryption: Decrypt the given cypher text by reversing the order the keys and passing the results through the DES algorithm/// </summary>
+/// <param name="ciphertext"></param>
+/// <returns>decrypted_pt</returns>
+string decryption(string ciphertext) {
+
+    pt = ciphertext;
+
+    int keysSize = sizeof(keys) / sizeof(keys[0]);
+
+    int keys_start = 0;
+    int keys_end = keysSize - 1;
+    while (keys_start < keys_end) {
+        swap(keys[keys_start], keys[keys_end]);
+        keys_start++;
+        keys_end--;
+    }
+
+    string decrypted_pt = DES();
+    return decrypted_pt;
+}
+/// <summary>
+/// The functions below where source from geeksforgeeks.
+/// Given this was appropiate because generating a key was not the focus of this assigment
+///  and the professor said we could utilize extenal souces or functions 
+/// </summary>
+/// <returns></returns>
+int findRandom()
+{
+    // Generate the random number
+    int num = ((int)rand() % 2);
+
+    // Return the generated number
+    return num;
+}
+string generateBinaryString(int N)
+{
+    srand(time(NULL));
+
+    // Stores the empty string
+    string S = "";
+
+    // Iterate over the range [0, N - 1]
+    for (int i = 0; i < N; i++) {
+
+        // Store the random number
+        int x = findRandom();
+
+        // Append it to the string
+        S += to_string(x);
+    }
+
+    // Print the resulting string
+    return S;
 }
