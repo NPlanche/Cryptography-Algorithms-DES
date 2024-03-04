@@ -3,21 +3,22 @@
 
 #include <iostream>
 #include <string>
+#include <bitset>
 using namespace std;
 //Global Vars
 string keys[16];
-
+string pt;
 //identifiers
 void key_generation(string K);
 string pc_1(string key);
 string shift_once_left(string key_part);
 string shift_twice_left(string key_part);
+string ptToBinary(string pt);
+string Xor (string right_expansion);
 
 int main()
 {
-    std::cout << "Hello World!\n";
     //Stepts 
-    // 1. Key Generation
     // 2. Plaintext (64 bits) to Initial Permutation
     // 3. Initial Permutation (64 bits) 
     // 4. Divide into Left0 and Right0 (32 bits)
@@ -34,7 +35,17 @@ int main()
    //TODO: change key: randomize it
    //64 bit key
     string key =  "1010101010111011000010010001100000100111001101101100110011011101";
-    key_generation(key);
+    //key_generation(key);
+
+    string plaintext = "";
+    cout << "Secret Message: ";
+    cin >> plaintext;
+
+    string pt = ptToBinary(plaintext);
+    cout << "Binary pt:" << pt << endl;
+
+    string cyphertext = DES();
+
 }
 
 void key_generation(string K) {
@@ -82,7 +93,6 @@ void key_generation(string K) {
     }
     
 }
-
 string pc_1(string key) {
     //PC-1 table 56 
     int pc_1[56] = {
@@ -120,7 +130,86 @@ string shift_twice_left(string key_part) {
     //shift bits twice
     return shift_once_left(shift_once_left(key_part));
 }
+string ptToBinary(string pt) {
+    string binary;
+    for (char c : pt) {
+        binary += bitset<8>(c).to_string();
+    }
 
+    return binary;
+}
 
+string DES() {
 
+    string ip = initial_permutation();
 
+    //divide into two halves
+    string left = ip.substr(0, 32);
+    string right = ip.substr(32, 32);
+
+    //Encryption
+    string right_expansion = expansion(right);
+    string xor_exp = Xor(keys[i], right_expansion);
+    
+
+    
+}
+
+string initial_permutation() {
+
+    int ip[64] = {
+    58, 50, 42, 34, 26, 18, 10, 2,
+    60, 52, 44, 36, 28, 20, 12, 4,
+    62, 54, 46, 38, 30, 22, 14, 6,
+    64, 56, 48, 40, 32, 24, 16, 8,
+    57, 49, 41, 33, 25, 17, 9, 1,
+    59, 51, 43, 35, 27, 19, 11, 3,
+    61, 53, 45, 37, 29, 21, 13, 5,
+    63, 55, 47, 39, 31, 23, 15, 7
+    };
+
+    string temp = "";
+
+    for (int i = 0; i < 64; i++) {
+        temp += pt[ip[i] - 1];
+    }
+
+    return temp;
+}
+
+string expansion(string right) {
+
+    //expansion table
+    int exp[48] = {
+        32, 1, 2, 3, 4, 5,
+        4, 5, 6, 7, 8, 9,
+        8, 9, 10, 11, 12, 13,
+        12, 13, 14, 15, 16, 17,
+        16, 17, 18, 19, 20, 21,
+        20, 21, 22, 23, 24, 25,
+        24, 25, 26, 27, 28, 29,
+        28, 29, 30, 31, 32, 1
+    };
+
+    string right_expansion = "";
+    for (int i = 0; i < 48; i++) {
+        right_expansion += right[exp[i] - 1];
+
+    }
+
+    return right_expansion;
+}
+string Xor (string key_round,string exp){
+    {
+        string r = "";
+        for (int i = 0; i < exp.size(); i++) {
+            if (key_round[i] != exp[i]) {
+                r += "1";
+            }
+            else {
+                r += "0";
+            }
+        }
+
+        return r;
+    }
