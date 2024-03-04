@@ -54,13 +54,10 @@ int main()
 
     string cyphertext = DES();
     cout << "Cyphertext:" << cyphertext << endl;
-
-
 }
 
 void key_generation(string K) {
 
-    //TODO: Change PC-1 AND PC-2 tables
     //PC-1 table 56 
     string new_key = pc_1(K);
 
@@ -219,12 +216,12 @@ string DES() {
     //initial permutations
     string ip = initial_permutation();
 
-    //second permutation
+    // The permutation table
     int permutation_table[32] = {
-        16, 7, 20, 21, 29, 12, 28, 17,
-        1, 15, 23, 26, 5, 18, 31, 10,
-        2, 8, 24, 14, 32, 27, 3, 9,
-        19, 13, 30, 6, 22, 11, 4, 25
+    16, 7, 20, 21, 29, 12, 28, 17,
+    1, 15, 23, 26, 5, 18, 31, 10,
+    2, 8, 24, 14, 32, 27, 3, 9,
+    19, 13, 30, 6, 22, 11, 4, 25
     };
 
     //divide into two halves
@@ -235,24 +232,29 @@ string DES() {
     for (int i = 0; i < 16; i++) {
         string right_expansion = expansion(right);
         string xor_exp = Xor(keys[i], right_expansion);
-        string r = "";
+        string result = "";
+
+
         //s-boxes
-        for (int i = 0; i < 8; i++) {
-            r = xor_exp.substr(i * 6, 1) + xor_exp.substr(i * 6 + 5, 1);
+        for (int j = 0; j < 8; j++) {
+            string r = xor_exp.substr(j * 6, 1) + xor_exp.substr(j * 6 + 5, 1);
             int row = binaryToDec(r);
 
-            string c = xor_exp.substr(i * 6 + 1, 1) + xor_exp.substr(i * 6 + 2, 1) + xor_exp.substr(i * 6 + 3, 1) + xor_exp.substr(i * 6 + 4, 1);;
+            string c = xor_exp.substr(j * 6 + 1, 1) + xor_exp.substr(j * 6 + 2, 1) + xor_exp.substr(j * 6 + 3, 1) + xor_exp.substr(j * 6 + 4, 1);;
             int col = binaryToDec(c);
-            int val = s_boxes[i][row][col];
-            r += decimalToBin(val);
-
+            int val = s_boxes[j][row][col];
+            result += decimalToBin(val);
         }
 
         //second permutation
         string second_perm = "";
-        for (int i = 0; i < 32; i++) {
-            second_perm += r[permutation_table[i] - 1];
+        for (int z = 0; z < 32; z++) {
+            cout << "z: " << z << endl;
+            cout << "permutation_table[z]: " << permutation_table[z] << endl;
+            cout << "r length: " << result.length() << endl;
+            second_perm += result[permutation_table[z] - 1];
         }
+
 
         xor_exp = Xor(second_perm, left);
 
