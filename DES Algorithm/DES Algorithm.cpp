@@ -14,7 +14,6 @@ string pc_1(string key);
 string shift_once_left(string key_part);
 string shift_twice_left(string key_part);
 string ptToBinary(string pt);
-string Xor (string right_expansion);
 
 string DES();
 string initial_permutation();
@@ -26,9 +25,10 @@ string final_permutation(string combined);
 
 int main()
 {
-    //Stepts 
+    // Encrytion Stepts 
+    // 1. convert paintext into binary
     // 2. Plaintext (64 bits) to Initial Permutation
-    // 3. Initial Permutation (64 bits) 
+    // 3. Initial Permutation
     // 4. Divide into Left0 and Right0 (32 bits)
     // 5. F function given K1 (48 bits) and Right0 --> result 32bit
     // 6. XOR Left0 and result 32bit
@@ -96,7 +96,7 @@ void key_generation(string K) {
         }
 
         keys[i] = key_num;
-        cout << "Key " << i + 1 << ": " << keys[i] << endl;
+        //cout << "Key " << i + 1 << ": " << keys[i] << endl;
     }
     
 }
@@ -139,13 +139,17 @@ string shift_twice_left(string key_part) {
 }
 string ptToBinary(string pt) {
     string binary;
+    
     for (char c : pt) {
-        binary += bitset<8>(c).to_string();
+        // Convert each character into its binary representation (8 bits)
+        binary += std::bitset<8>(c).to_string();
     }
-    // Pad with zeros to ensure 64 bits
+
+    // Pad with leading zeros if necessary to make it 64 bits
     while (binary.length() < 64) {
         binary = "0" + binary;
     }
+
     return binary;
 }
 
@@ -213,7 +217,7 @@ string DES() {
         },
     };
 
-    //initial permutations
+    // 2. Plaintext (64 bits) to Initial Permutation
     string ip = initial_permutation();
 
     // The permutation table
@@ -224,13 +228,16 @@ string DES() {
     19, 13, 30, 6, 22, 11, 4, 25
     };
 
-    //divide into two halves
+    // 4. Divide into Left0 and Right0 (32 bits)
     string left = ip.substr(0, 32);
     string right = ip.substr(32, 32);
 
     //Encryption 16 rounds 
     for (int i = 0; i < 16; i++) {
+
+        // 5. F function given K1 (48 bits) and Right0 --> result 32bit
         string right_expansion = expansion(right);
+        // 6. XOR Left0 and result 32bit
         string xor_exp = Xor(keys[i], right_expansion);
         string result = "";
 
@@ -249,14 +256,12 @@ string DES() {
         //second permutation
         string second_perm = "";
         for (int z = 0; z < 32; z++) {
-            cout << "z: " << z << endl;
-            cout << "permutation_table[z]: " << permutation_table[z] << endl;
-            cout << "r length: " << result.length() << endl;
             second_perm += result[permutation_table[z] - 1];
         }
 
-
         xor_exp = Xor(second_perm, left);
+
+        // 7. Switch Orientation (L0 -> R1 and R0 -> L1)
 
         left = xor_exp;
 
@@ -269,12 +274,12 @@ string DES() {
 
     //combine the two halves of plaintext
     string combined = right + left;
-
-    //final permutation
+    // 10. Unite L16 and R16 for Final Permutation
     string ciphertext = final_permutation(combined);
-
+    // 12. Ciphertext
     return ciphertext;
 }
+// 3. Initial Permutation (64 bits) 
 string initial_permutation() {
 
     int ip[64] = {
