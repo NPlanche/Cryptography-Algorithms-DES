@@ -147,7 +147,8 @@ S-Boxes
 RG: https://www.geeksforgeeks.org/generate-a-random-binary-string-of-length-n/.
 
 ## Using
+Language: C++
 Execute DES Algorithm.cpp inside the DES Algorithm folder
-Enter the secret message:_ _ _ _
+Enter the secret message:
 
 
