@@ -15,7 +15,6 @@ string pc_1(string key);
 string shift_once_left(string key_part);
 string shift_twice_left(string key_part);
 string ptToBinary(string pt);
-string binaryToPlaintext(string binary);
 
 string DES();
 string initial_permutation();
@@ -29,7 +28,6 @@ string generateBinaryString(int N);
 
 int main()
 {
- 
    // 1. Key Generation ( 64 bit key )
     string key = generateBinaryString(64);
     key_generation(key);
