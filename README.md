@@ -147,9 +147,9 @@ S-Boxes
 RG: https://www.geeksforgeeks.org/generate-a-random-binary-string-of-length-n/.
 
 ## Using
-Language: C++
-Visual Studio 2022
-Execute DES Algorithm.cpp inside the DES Algorithm folder
-Enter the secret message:
+- Language: C++
+- Visual Studio 2022
+- Execute DES Algorithm.cpp inside the DES Algorithm folder
+- Enter the secret message:
 
 
